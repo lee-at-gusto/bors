@@ -253,11 +253,14 @@ def parse_commands(body, username, repo_cfg, state, my_username, db, states, *, 
     for i, word in reversed(list(enumerate(words))):
         found = True
 
-        if word == 'r+' or word.startswith('r='):
+        if word == 'r+' or word.startswith('r=') or word == 'land':
             if try_only:
                 if realtime:
                     state.add_comment(':key: Insufficient privileges')
                 continue
+
+            if word == 'land':
+                state.rollup = True
 
             if not sha and i + 1 < len(words):
                 cur_sha = sha_or_blank(words[i + 1])
@@ -319,7 +322,7 @@ def parse_commands(body, username, repo_cfg, state, my_username, db, states, *, 
                 else:
                     state.add_comment(':pushpin: Commit {:.7} has been approved by `{}`\n\n<!-- @{} r={} {} -->'.format(state.head_sha, approver, my_username, approver, state.head_sha))
 
-        elif word == 'r-':
+        elif word == 'r-' or word == 'unland':
             if try_only:
                 if realtime:
                     state.add_comment(':key: Insufficient privileges')
